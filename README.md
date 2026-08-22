@@ -2,7 +2,7 @@
 
 Proyecto académico para Electrónica Digital (CUL) — Calculadora multibase (2, 8, 10, 16) + ALU (AND/OR/XOR) con overflow por tamaño de palabra (8/16/32/64 bits).
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://dashboard.render.com/blueprint/new?repo=https://github.com/dacc-code/calculadora-conversiones-cul)
+[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/dacc-code/calculadora-conversiones-cul)
 
 **Repo:** https://github.com/dacc-code/calculadora-conversiones-cul
 
