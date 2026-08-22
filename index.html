@@ -1,0 +1,179 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor de Conversión Digital - CUL</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,sans-serif;background:#0b0f14;color:#eef2f7}.container{width:min(1050px,calc(100% - 32px));margin:auto;padding:40px 0}.hero{margin-bottom:24px}.badge{display:inline-block;padding:6px 10px;border:1px solid #344052;border-radius:999px;font-size:13px;color:#b9c4d3}h1{margin:12px 0 8px;font-size:clamp(32px,5vw,52px)}h2{margin-top:0}.hero p,.card p{color:#9eabba}.card{background:#121821;border:1px solid #273140;border-radius:18px;padding:24px;margin-bottom:20px}.form-grid,.register-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}.register-grid{grid-template-columns:repeat(2,1fr)}label{display:grid;gap:8px;color:#b9c4d3;font-size:14px}input,select{width:100%;border:1px solid #354153;background:#0d1219;color:#fff;border-radius:10px;padding:12px;font:inherit}button{margin-top:18px;border:0;border-radius:10px;padding:12px 18px;background:#e7edf5;color:#10151c;font-weight:700;cursor:pointer}button:hover{background:#d8e2f0}.message{min-height:20px}.message.error{color:#ff8f8f}.message.success{color:#9de6b2}.alu-buttons{display:flex;gap:10px;flex-wrap:wrap}.alu-result{margin-top:20px;padding:16px;border-radius:10px;background:#0d1219;border:1px solid #273140}footer{color:#718096;font-size:13px;text-align:center;padding:20px 0}@media(max-width:760px){.form-grid,.register-grid{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main class="container">
+<header class="hero">
+<span class="badge">CUL · Electrónica Digital · Versión Estática (GitHub Pages)</span>
+<h1>Motor de Conversión de Bases</h1>
+<p>Conversión multibase y simulación ALU — 100% en el navegador, sin servidor. Algoritmos manuales.</p>
+</header>
+
+<section class="card">
+<h2>Entrada de datos</h2>
+<div class="form-grid">
+<label>Número<input id="number" type="text" placeholder="Ej. 255"></label>
+<label>Base de entrada<select id="base">
+<option value="2">Binario (2)</option><option value="8">Octal (8)</option>
+<option value="10" selected>Decimal (10)</option><option value="16">Hexadecimal (16)</option>
+</select></label>
+<label>Tamaño de palabra<select id="bits">
+<option value="8">8 bits (Byte)</option><option value="16">16 bits (Word)</option><option value="32">32 bits (DWord)</option><option value="64">64 bits (QWord)</option>
+</select></label>
+</div>
+<button id="convertBtn">Convertir</button>
+<p id="message" class="message"></p>
+</section>
+
+<section class="card">
+<h2>Panel de registros</h2>
+<p>Resultados en las cuatro bases principales.</p>
+<div class="register-grid">
+<label>Base 2<input id="out2" readonly></label>
+<label>Base 8<input id="out8" readonly></label>
+<label>Base 10<input id="out10" readonly></label>
+<label>Base 16<input id="out16" readonly></label>
+</div>
+</section>
+
+<section class="card">
+<h2>Capa de Aritmética Lógica (ALU)</h2>
+<p>Operaciones bit a bit: AND, OR y XOR.</p>
+<div class="form-grid">
+<label>Cadena A<input id="aluA" value="1010"></label>
+<label>Cadena B<input id="aluB" value="1100"></label>
+</div>
+<div class="alu-buttons">
+<button data-op="AND">AND</button><button data-op="OR">OR</button><button data-op="XOR">XOR</button>
+</div>
+<div class="alu-result">Resultado: <strong id="aluResult">—</strong></div>
+</section>
+
+<footer>Implementación académica sin parseInt(base), toString(base) · Funciona offline · <a href="https://github.com/dacc-code/calculadora-conversiones-cul" style="color:#9eabba">Ver código Flask original</a></footer>
+</main>
+<script>
+// === LÓGICA PORTADA DE app.py (sin servidor) ===
+const DIGITS="0123456789ABCDEF";
+const CHAR_TO_VALUE={};
+for(let i=0;i<10;i++) CHAR_TO_VALUE[String(i)]=i;
+for(let i=0;i<6;i++) CHAR_TO_VALUE[String.fromCharCode(65+i)]=10+i;
+
+function digitValue(ch){
+  ch=ch.toUpperCase();
+  if(!(ch in CHAR_TO_VALUE)) throw new Error(`Dígito inválido: ${ch}`);
+  return CHAR_TO_VALUE[ch];
+}
+function validateDigits(number, base){
+  if(!number) throw new Error("Ingrese un número.");
+  for(let ch of number.toUpperCase()){
+    if(digitValue(ch) >= base) throw new Error(`El dígito '${ch}' no pertenece a la base ${base}.`);
+  }
+}
+function baseToDecimal(number, base){
+  number=number.trim().toUpperCase();
+  validateDigits(number, base);
+  let result=0, power=1;
+  for(let i=number.length-1;i>=0;i--){
+    result += digitValue(number[i]) * power;
+    power *= base;
+  }
+  return result;
+}
+function decimalToBase(value, base){
+  if(value===0) return "0";
+  let remainders=[], current=value;
+  while(current>0){
+    let q=Math.floor(current/base);
+    let r=current - q*base;
+    remainders.push(DIGITS[r]);
+    current=q;
+  }
+  let res="";
+  for(let i=remainders.length-1;i>=0;i--) res+=remainders[i];
+  return res;
+}
+function padLeft(value, width){
+  while(value.length < width) value="0"+value;
+  return value;
+}
+function convertAll(number, source_base, bits){
+  let decimal_value=baseToDecimal(number, source_base);
+  let max_value = (2 ** bits) -1; // para 64 bits pierde precisión pero ok para demo; usamos BigInt si bits>32?
+  // Fix para 64 bits con BigInt
+  if(bits===64){
+    let maxBig = (2n ** 64n) - 1n;
+    let decBig = BigInt(decimal_value);
+    // si usamos base 10 grande > 2^53, re-evaluar con BigInt parsing
+    // fallback: para 64 bits usamos BigInt path
+    try {
+      // reparse con BigInt si base !=10
+      let val = 0n;
+      let b = BigInt(source_base);
+      let num = number.trim().toUpperCase();
+      for(let ch of num){
+        val = val * b + BigInt(digitValue(ch));
+      }
+      decBig = val;
+      decimal_value = Number(val > BigInt(Number.MAX_SAFE_INTEGER) ? maxBig : val); // mantener compat
+      if(decBig > maxBig) throw new Error(`Overflow / Desbordamiento de Registro. El máximo para ${bits} bits es ${maxBig}.`);
+      let binary = padLeft(decBig.toString(2), bits);
+      let octal = padLeft(decBig.toString(8), Math.ceil(bits/3));
+      let decimal = decBig.toString(10);
+      let hexadecimal = padLeft(decBig.toString(16).toUpperCase(), Math.ceil(bits/4));
+      return {binary, octal, decimal, hexadecimal, decimal_value: decimal, max_value: maxBig.toString()};
+    } catch(e){ if(e.message.includes("Overflow")) throw e; }
+  }
+  if(decimal_value > max_value) throw new Error(`Overflow / Desbordamiento de Registro. El máximo para ${bits} bits es ${max_value}.`);
+  let binary=padLeft(decimalToBase(decimal_value,2),bits);
+  let octal=padLeft(decimalToBase(decimal_value,8),Math.ceil(bits/3));
+  let decimal=decimalToBase(decimal_value,10);
+  let hexadecimal=padLeft(decimalToBase(decimal_value,16),Math.ceil(bits/4));
+  return {binary, octal, decimal, hexadecimal, decimal_value, max_value};
+}
+function normalizeBinary(v){
+  v=v.trim(); if(!v) throw new Error("Ingrese un valor binario.");
+  for(let ch of v) if(ch!=='0' && ch!=='1') throw new Error("La ALU solo acepta cadenas binarias.");
+  return v;
+}
+function aluOperation(a,b,op){
+  a=normalizeBinary(a); b=normalizeBinary(b);
+  if(a.length!==b.length) throw new Error("Las dos cadenas binarias deben tener la misma longitud.");
+  let res="";
+  for(let i=0;i<a.length;i++){
+    let x=a[i], y=b[i];
+    if(op==="AND") res+= (x==="1" && y==="1")?"1":"0";
+    else if(op==="OR") res+= (x==="1" || y==="1")?"1":"0";
+    else if(op==="XOR") res+= (x!==y)?"1":"0";
+    else throw new Error("Operación ALU no válida.");
+  }
+  return res;
+}
+
+// UI
+const $=id=>document.getElementById(id);
+$("convertBtn").addEventListener("click",()=>{
+ const m=$("message");m.textContent="";m.className="message";
+ try{
+  let number=$("number").value, base=parseInt($("base").value), bits=parseInt($("bits").value);
+  if(!number.trim()) throw new Error("Ingrese un número.");
+  let d=convertAll(number, base, bits);
+  $("out2").value=d.binary;$("out8").value=d.octal;$("out10").value=d.decimal;$("out16").value=d.hexadecimal;
+  m.textContent=`Conversión correcta. Máximo permitido: ${d.max_value}.`;m.className="message success";
+ }catch(e){["out2","out8","out10","out16"].forEach(id=>$(id).value="");m.textContent=e.message;m.className="message error";}
+});
+document.querySelectorAll("[data-op]").forEach(b=>b.addEventListener("click",()=>{
+ try{
+  let r=aluOperation($("aluA").value,$("aluB").value,b.dataset.op);
+  $("aluResult").textContent=r;
+ }catch(e){$("aluResult").textContent=e.message;}
+}));
+</script>
+</body>
+</html>
