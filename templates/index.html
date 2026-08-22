@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Motor de Conversión Digital</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+<main class="container">
+<header class="hero">
+<span class="badge">CUL · Electrónica Digital</span>
+<h1>Motor de Conversión de Bases</h1>
+<p>Conversión multibase y simulación de una ALU mediante algoritmos manuales.</p>
+</header>
+
+<section class="card">
+<h2>Entrada de datos</h2>
+<div class="form-grid">
+<label>Número<input id="number" type="text" placeholder="Ej. 255"></label>
+<label>Base de entrada<select id="base">
+<option value="2">Binario (2)</option><option value="8">Octal (8)</option>
+<option value="10" selected>Decimal (10)</option><option value="16">Hexadecimal (16)</option>
+</select></label>
+<label>Tamaño de palabra<select id="bits">
+<option value="8">8 bits (Byte)</option><option value="16">16 bits (Word)</option>
+<option value="32">32 bits (DWord)</option><option value="64">64 bits (QWord)</option>
+</select></label>
+</div>
+<button id="convertBtn">Convertir</button>
+<p id="message" class="message"></p>
+</section>
+
+<section class="card">
+<h2>Panel de registros</h2>
+<p>Resultados en las cuatro bases principales.</p>
+<div class="register-grid">
+<label>Base 2<input id="out2" readonly></label>
+<label>Base 8<input id="out8" readonly></label>
+<label>Base 10<input id="out10" readonly></label>
+<label>Base 16<input id="out16" readonly></label>
+</div>
+</section>
+
+<section class="card">
+<h2>Capa de Aritmética Lógica (ALU)</h2>
+<p>Operaciones bit a bit: AND, OR y XOR.</p>
+<div class="form-grid">
+<label>Cadena A<input id="aluA" value="1010"></label>
+<label>Cadena B<input id="aluB" value="1100"></label>
+</div>
+<div class="alu-buttons">
+<button data-op="AND">AND</button><button data-op="OR">OR</button><button data-op="XOR">XOR</button>
+</div>
+<div class="alu-result">Resultado: <strong id="aluResult">—</strong></div>
+</section>
+
+<footer>Implementación académica sin parseInt(base), toString(base) ni funciones equivalentes.</footer>
+</main>
+<script src="{{ url_for('static', filename='app.js') }}"></script>
+</body>
+</html>
