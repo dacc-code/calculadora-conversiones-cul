@@ -4,9 +4,17 @@ Proyecto académico para Electrónica Digital (CUL) — Calculadora multibase (2
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/dacc-code/calculadora-conversiones-cul)
 
+**✅ DEMO EN VIVO (GRATIS, sin pago): https://dacc-code.github.io/calculadora-conversiones-cul/**
+
 **Repo:** https://github.com/dacc-code/calculadora-conversiones-cul
 
-## 🚀 Deploy en Render (Gratis, 2 min)
+## ✅ GitHub Pages (ACTIVO - Gratis sin tarjeta)
+
+Ya está desplegado: **https://dacc-code.github.io/calculadora-conversiones-cul/**
+- No pide pago, no se duerme, funciona offline. Es la versión estática (misma lógica pero 100% en el navegador).
+- Cada `git push` a `main` actualiza la página automáticamente.
+
+## 🚀 Deploy en Render (Requiere tarjeta, alternativo)
 
 1. Click en **Deploy to Render** arriba o ve a https://dashboard.render.com/select-repo?type=web
 2. Conecta tu GitHub y selecciona `dacc-code/calculadora-conversiones-cul`
