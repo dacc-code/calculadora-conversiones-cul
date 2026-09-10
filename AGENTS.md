@@ -56,7 +56,7 @@ Sin linter, tests ni CI.
 ## Testing / Lint / Build
 
 - Sin suite. Verificación mínima: `python -m py_compile app.py`, `python app.py` y convertir `FF` hex→dec (`255`), ALU `AND(1010,1100)=1000`.
-- TODO: tests unitarios de `base_to_decimal`/`decimal_to_base`/ALU + overflow + CI (`py_compile` + smoke test Flask).
+- TODO: tests unitarios de `base_to_decimal`/`decimal_to_base`/ALU + overflow. CI: `.github/workflows/ci.yml` (py_compile + smoke Flask).
 - Equipo limitado: no instalar toolchains pesados.
 
 ## Deployment
