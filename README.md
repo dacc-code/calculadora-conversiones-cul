@@ -1,5 +1,10 @@
 # Motor de Conversión de Bases y Aritmética de Bajo Nivel
 
+![Python](https://img.shields.io/badge/python-3.11-blue.svg?style=flat&logo=python&logoColor=white)
+![Flask](https://img.shields.io/badge/flask-3.x-black.svg?style=flat&logo=flask&logoColor=white)
+![GitHub Pages](https://img.shields.io/badge/demo-GitHub_Pages-green.svg?style=flat)
+![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)
+
 Proyecto académico para Electrónica Digital (CUL) — Calculadora multibase (2, 8, 10, 16) + ALU (AND/OR/XOR) con overflow por tamaño de palabra (8/16/32/64 bits).
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/dacc-code/calculadora-conversiones-cul)
@@ -48,5 +53,49 @@ python app.py
 
 ## 📦 Entregable CUL
 
-- ZIP listo: `calculadora_conversiones_cul-v2.zip` (5.9K, con Procfile/render.yaml)
-- Original: `calculadora_conversiones_cul.zip`
+- TODO: verificar ZIPs de entrega (`calculadora_conversiones_cul-v2.zip`, `calculadora_conversiones_cul.zip` mencionados históricamente pero no presentes en el repo).
+
+## 🧱 Stack y arquitectura
+
+| Capa | Tecnología |
+|------|------------|
+| Backend | Python + Flask 3.x (`app.py`), gunicorn |
+| Frontend Flask | `templates/index.html` + `static/` |
+| Demo web | HTML estático (`index.html` = `docs/`) |
+| Deploy | GitHub Pages (principal) + Render (alternativo) |
+| Deps | `requirements.txt` (Flask 3.x, gunicorn) |
+
+```text
+Flask: input → validate_digits(base) → base_to_decimal ↔ decimal_to_base → ALU/overflow(2^bits-1)
+Estática: misma lógica 100% en el navegador, sin servidor
+```
+
+## 📁 Estructura
+
+```text
+├── app.py             # Flask + conversión multibase y ALU
+├── templates/ | static/
+├── index.html | docs/ # demo estática (idénticas)
+├── requirements.txt | Procfile | render.yaml
+├── README.md
+├── LICENSE            # MIT
+└── AGENTS.md           # instrucciones para agentes de IA
+```
+
+## 🧪 Testing
+
+Sin suite automatizada. Verificación manual:
+
+1. `python app.py` → http://127.0.0.1:5000 responde 200.
+2. `FF` hex → `255` dec; `AND(1010,1100)=1000`.
+3. Dígito inválido para la base → error en español.
+
+- TODO: unit tests de conversión/ALU/overflow + CI (`py_compile` + smoke test).
+
+## 🔒 Seguridad
+
+Sin autenticación ni credenciales (calculadora pública). Validación estricta dígito-base con `ValueError`. No commitear `.env` (ignorado).
+
+## 📄 Licencia
+
+MIT — ver [LICENSE](LICENSE).
