@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  python:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install deps
+        run: pip install -r requirements.txt
+
+      - name: Compile check
+        run: python -m py_compile app.py
+
+      - name: Smoke test (Flask routes)
+        run: |
+          python - <<'EOF'
+          import app as m
+          assert hasattr(m, "app"), "falta Flask app"
+          c = m.app.test_client()
+          r = c.get("/")
+          assert r.status_code == 200, f"GET / -> {r.status_code}"
+          r = c.post("/api/convert", json={"number": "FF", "base": "16", "bits": "8"})
+          assert r.status_code == 200, f"convert -> {r.status_code}"
+          r = c.post("/api/alu", json={"a": "1010", "b": "1100", "operation": "AND"})
+          assert r.get_json()["result"] == "1000", "ALU AND"
+          print("smoke OK: / + convert + ALU")
+          EOF
